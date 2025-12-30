@@ -30,18 +30,16 @@ export default function HomeScreen() {
 
   return (
     <View style={styles.container}>
-      <View style={styles.content}>
-        <Text style={styles.title}>Celebrate Your Wins! 🎉</Text>
-        <Text style={styles.subtitle}>
-          Press the button every time you accomplish something
-        </Text>
-
-        <View style={styles.statsContainer}>
-          <Text style={styles.statsText}>
-            Celebrations Today: {celebrationCount}
-          </Text>
+      {/* Header Section */}
+      <View style={styles.headerSection}>
+        <Text style={styles.title}>Celebrate Your Wins!</Text>
+        <View style={styles.counterContainer}>
+          <Text style={styles.counterText}>🎉 {celebrationCount}</Text>
         </View>
+      </View>
 
+      {/* Main Content */}
+      <View style={styles.content}>
         <TouchableOpacity 
           style={styles.button}
           onPress={handlePress}
@@ -50,18 +48,23 @@ export default function HomeScreen() {
           <Text style={styles.buttonText}>I did it!</Text>
         </TouchableOpacity>
 
-        <View style={styles.upgradeContainer}>
-          <Text style={styles.upgradeText}>
-            Want to track what you accomplished?
-          </Text>
-          <TouchableOpacity 
-            style={styles.upgradeButton}
-            onPress={() => console.log("Upgrade pressed - Superwall integration coming")}
-            activeOpacity={0.7}
-          >
-            <Text style={styles.upgradeButtonText}>Upgrade to Pro ✨</Text>
-          </TouchableOpacity>
-        </View>
+        <Text style={styles.subtitle}>
+          Press the button every time you accomplish something
+        </Text>
+      </View>
+
+      {/* Upgrade Section at Bottom */}
+      <View style={styles.upgradeContainer}>
+        <Text style={styles.upgradeText}>
+          Want to track what you accomplished?
+        </Text>
+        <TouchableOpacity 
+          style={styles.upgradeButton}
+          onPress={() => console.log("Upgrade pressed - Superwall integration coming")}
+          activeOpacity={0.7}
+        >
+          <Text style={styles.upgradeButtonText}>Upgrade to Pro ✨</Text>
+        </TouchableOpacity>
       </View>
 
       <ConfettiCannon
@@ -82,77 +85,101 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.background,
   },
+  headerSection: {
+    paddingTop: Platform.OS === 'android' ? 48 : 60,
+    paddingHorizontal: 20,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  title: {
+    fontSize: 28,
+    fontWeight: '800',
+    color: colors.text,
+    flex: 1,
+  },
+  counterContainer: {
+    backgroundColor: colors.card,
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 20,
+    boxShadow: '0px 2px 8px rgba(0, 0, 0, 0.1)',
+    elevation: 2,
+  },
+  counterText: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: colors.text,
+  },
   content: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: 20,
-    paddingBottom: 120, // Space for tab bar
+    paddingBottom: 100,
   },
-  title: {
+  button: {
+    width: 200,
+    height: 200,
+    borderRadius: 100,
+    backgroundColor: colors.gold,
+    alignItems: 'center',
+    justifyContent: 'center',
+    boxShadow: '0px 12px 40px rgba(255, 215, 0, 0.5)',
+    elevation: 12,
+    borderWidth: 4,
+    borderColor: colors.goldLight,
+  },
+  buttonText: {
     fontSize: 32,
     fontWeight: '800',
-    color: colors.text,
+    color: '#FFFFFF',
     textAlign: 'center',
-    marginBottom: 12,
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4,
   },
   subtitle: {
     fontSize: 16,
     color: colors.textSecondary,
     textAlign: 'center',
-    marginBottom: 40,
+    marginTop: 32,
     paddingHorizontal: 20,
-  },
-  statsContainer: {
-    backgroundColor: colors.card,
-    paddingVertical: 16,
-    paddingHorizontal: 32,
-    borderRadius: 16,
-    marginBottom: 40,
-    boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.08)',
-    elevation: 3,
-  },
-  statsText: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: colors.text,
-  },
-  button: {
-    backgroundColor: colors.primary,
-    paddingVertical: 24,
-    paddingHorizontal: 60,
-    borderRadius: 50,
-    boxShadow: '0px 8px 24px rgba(76, 175, 80, 0.3)',
-    elevation: 8,
-    marginBottom: 60,
-  },
-  buttonText: {
-    fontSize: 28,
-    fontWeight: '700',
-    color: '#FFFFFF',
-    textAlign: 'center',
   },
   upgradeContainer: {
-    alignItems: 'center',
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: colors.lightBlue,
+    paddingVertical: 24,
     paddingHorizontal: 20,
+    paddingBottom: 40,
+    alignItems: 'center',
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    boxShadow: '0px -4px 20px rgba(0, 0, 0, 0.1)',
+    elevation: 8,
   },
   upgradeText: {
-    fontSize: 14,
-    color: colors.textSecondary,
+    fontSize: 15,
+    color: colors.text,
     textAlign: 'center',
     marginBottom: 12,
+    fontWeight: '500',
   },
   upgradeButton: {
-    backgroundColor: colors.secondary,
-    paddingVertical: 12,
-    paddingHorizontal: 24,
+    backgroundColor: '#FFFFFF',
+    paddingVertical: 14,
+    paddingHorizontal: 32,
     borderRadius: 24,
-    boxShadow: '0px 4px 12px rgba(255, 193, 7, 0.2)',
+    boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.15)',
     elevation: 4,
   },
   upgradeButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
+    fontSize: 17,
+    fontWeight: '700',
     color: colors.text,
   },
 });

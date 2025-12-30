@@ -10,6 +10,9 @@ export const colors = {
   accent: '#2196F3',
   card: '#FFFFFF',
   highlight: '#E0E0E0',
+  gold: '#FFD700',
+  goldLight: '#FFED4E',
+  lightBlue: '#ADD8E6',
 };
 
 export const buttonStyles = StyleSheet.create({
