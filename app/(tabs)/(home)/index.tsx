@@ -1,6 +1,6 @@
 
 import React, { useRef, useState } from "react";
-import { StyleSheet, View, Text, TouchableOpacity, Platform } from "react-native";
+import { StyleSheet, View, Text, TouchableOpacity, Platform, TextInput } from "react-native";
 import { colors } from "@/styles/commonStyles";
 import * as Haptics from "expo-haptics";
 import ConfettiCannon from "react-native-confetti-cannon";
@@ -8,6 +8,8 @@ import ConfettiCannon from "react-native-confetti-cannon";
 export default function HomeScreen() {
   const confettiRef = useRef<any>(null);
   const [celebrationCount, setCelebrationCount] = useState(0);
+  const [isPro, setIsPro] = useState(true); // Set to true to show pro version
+  const [accomplishment, setAccomplishment] = useState("");
 
   const handlePress = () => {
     console.log("I did it button pressed!");
@@ -26,6 +28,13 @@ export default function HomeScreen() {
 
     // Increment celebration count
     setCelebrationCount(prev => prev + 1);
+
+    // Log accomplishment if pro user
+    if (isPro && accomplishment.trim()) {
+      console.log("Accomplishment logged:", accomplishment);
+      // TODO: Save to storage with date
+      setAccomplishment(""); // Clear the input after logging
+    }
   };
 
   return (
@@ -50,24 +59,45 @@ export default function HomeScreen() {
           <Text style={styles.buttonText}>I did it!</Text>
         </TouchableOpacity>
 
+        {/* Pro Feature: Text Input */}
+        {isPro && (
+          <View style={styles.inputContainer}>
+            <TextInput
+              style={styles.textInput}
+              placeholder="what did you accomplish"
+              placeholderTextColor="#999999"
+              value={accomplishment}
+              onChangeText={setAccomplishment}
+              multiline
+              numberOfLines={3}
+              textAlignVertical="top"
+            />
+          </View>
+        )}
+
         <Text style={styles.subtitle}>
           Press the button every time you accomplish something
         </Text>
       </View>
 
-      {/* Upgrade Section - Moved higher to avoid tab bar overlap */}
-      <View style={styles.upgradeContainer}>
-        <Text style={styles.upgradeText}>
-          Want to track what you accomplished?
-        </Text>
-        <TouchableOpacity 
-          style={styles.upgradeButton}
-          onPress={() => console.log("Upgrade pressed - Superwall integration coming")}
-          activeOpacity={0.7}
-        >
-          <Text style={styles.upgradeButtonText}>Upgrade to Pro ✨</Text>
-        </TouchableOpacity>
-      </View>
+      {/* Upgrade Section - Only show if not pro */}
+      {!isPro && (
+        <View style={styles.upgradeContainer}>
+          <Text style={styles.upgradeText}>
+            Want to track what you accomplished?
+          </Text>
+          <TouchableOpacity 
+            style={styles.upgradeButton}
+            onPress={() => {
+              console.log("Upgrade pressed - Superwall integration coming");
+              setIsPro(true); // Simulate upgrade for now
+            }}
+            activeOpacity={0.7}
+          >
+            <Text style={styles.upgradeButtonText}>Upgrade to Pro ✨</Text>
+          </TouchableOpacity>
+        </View>
+      )}
 
       <ConfettiCannon
         ref={confettiRef}
@@ -146,6 +176,24 @@ const styles = StyleSheet.create({
     textShadowColor: 'rgba(0, 0, 0, 0.3)',
     textShadowOffset: { width: 0, height: 2 },
     textShadowRadius: 4,
+  },
+  inputContainer: {
+    width: '100%',
+    marginTop: 24,
+    paddingHorizontal: 20,
+  },
+  textInput: {
+    backgroundColor: colors.card,
+    borderRadius: 16,
+    padding: 16,
+    fontSize: 16,
+    color: colors.text,
+    minHeight: 80,
+    maxHeight: 120,
+    borderWidth: 2,
+    borderColor: colors.highlight,
+    boxShadow: '0px 2px 8px rgba(0, 0, 0, 0.08)',
+    elevation: 2,
   },
   subtitle: {
     fontSize: 16,
