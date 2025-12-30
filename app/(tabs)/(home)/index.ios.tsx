@@ -60,7 +60,7 @@ export default function HomeScreen() {
           <View style={styles.inputContainer}>
             <TextInput
               style={styles.textInput}
-              placeholder="what did you accomplish"
+              placeholder="What did you accomplish?"
               placeholderTextColor="#999999"
               value={accomplishment}
               onChangeText={setAccomplishment}
