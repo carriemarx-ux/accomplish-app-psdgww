@@ -30,11 +30,13 @@ export default function HomeScreen() {
 
   return (
     <View style={styles.container}>
-      {/* Header Section */}
+      {/* Header Section - Full Width */}
       <View style={styles.headerSection}>
         <Text style={styles.title}>Celebrate Your Wins!</Text>
-        <View style={styles.counterContainer}>
-          <Text style={styles.counterText}>🎉 {celebrationCount}</Text>
+        <View style={styles.counterRow}>
+          <View style={styles.counterContainer}>
+            <Text style={styles.counterText}>🎉 {celebrationCount}</Text>
+          </View>
         </View>
       </View>
 
@@ -53,7 +55,7 @@ export default function HomeScreen() {
         </Text>
       </View>
 
-      {/* Upgrade Section at Bottom */}
+      {/* Upgrade Section - Moved higher to avoid tab bar overlap */}
       <View style={styles.upgradeContainer}>
         <Text style={styles.upgradeText}>
           Want to track what you accomplished?
@@ -88,16 +90,20 @@ const styles = StyleSheet.create({
   headerSection: {
     paddingTop: Platform.OS === 'android' ? 48 : 60,
     paddingHorizontal: 20,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    width: '100%',
     marginBottom: 20,
   },
   title: {
-    fontSize: 28,
+    fontSize: 32,
     fontWeight: '800',
     color: colors.text,
-    flex: 1,
+    width: '100%',
+    marginBottom: 12,
+  },
+  counterRow: {
+    width: '100%',
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
   },
   counterContainer: {
     backgroundColor: colors.card,
@@ -117,7 +123,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: 20,
-    paddingBottom: 100,
+    paddingBottom: 40,
   },
   button: {
     width: 200,
@@ -148,14 +154,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
   upgradeContainer: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
     backgroundColor: colors.lightBlue,
-    paddingVertical: 24,
+    paddingVertical: 20,
     paddingHorizontal: 20,
-    paddingBottom: 40,
+    paddingBottom: 120,
     alignItems: 'center',
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
