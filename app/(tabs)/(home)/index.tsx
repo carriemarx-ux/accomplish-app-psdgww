@@ -99,6 +99,7 @@ const styles = StyleSheet.create({
     color: colors.text,
     width: '100%',
     marginBottom: 12,
+    textAlign: 'center',
   },
   counterRow: {
     width: '100%',
