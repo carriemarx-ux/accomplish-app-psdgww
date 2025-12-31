@@ -141,8 +141,8 @@ export default function ProfileScreen() {
                       <View key={itemIndex} style={styles.accomplishmentCard}>
                         <View style={styles.accomplishmentContent}>
                           <IconSymbol
-                            ios_icon_name="checkmark.circle.fill"
-                            android_material_icon_name="check_circle"
+                            ios_icon_name="star.fill"
+                            android_material_icon_name="star"
                             size={24}
                             color={colors.primary}
                           />
