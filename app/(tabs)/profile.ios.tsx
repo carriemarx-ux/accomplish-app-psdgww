@@ -1,54 +1,60 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { 
   StyleSheet, 
   View, 
   Text, 
   ScrollView, 
   TouchableOpacity,
-  TextInput,
-  Modal,
+  RefreshControl,
 } from "react-native";
 import { colors } from "@/styles/commonStyles";
 import { IconSymbol } from "@/components/IconSymbol";
-
-interface Accomplishment {
-  id: string;
-  text: string;
-  date: Date;
-}
+import { getAccomplishmentsByDate, formatDate, type AccomplishmentsByDate } from "@/utils/storageService";
+import { useFocusEffect } from "expo-router";
 
 export default function ProfileScreen() {
-  const [isPro, setIsPro] = useState(false);
-  const [accomplishments, setAccomplishments] = useState<Accomplishment[]>([]);
-  const [showAddModal, setShowAddModal] = useState(false);
-  const [newAccomplishment, setNewAccomplishment] = useState("");
+  const [isPro, setIsPro] = useState(true); // Set to true to show pro version
+  const [accomplishmentsByDate, setAccomplishmentsByDate] = useState<AccomplishmentsByDate[]>([]);
+  const [refreshing, setRefreshing] = useState(false);
+  const [loading, setLoading] = useState(true);
 
-  const handleAddAccomplishment = () => {
-    if (newAccomplishment.trim()) {
-      const newItem: Accomplishment = {
-        id: Date.now().toString(),
-        text: newAccomplishment.trim(),
-        date: new Date(),
-      };
-      setAccomplishments([newItem, ...accomplishments]);
-      setNewAccomplishment("");
-      setShowAddModal(false);
-      console.log("Added accomplishment:", newItem);
+  const loadAccomplishments = async () => {
+    try {
+      console.log("Loading accomplishments...");
+      const data = await getAccomplishmentsByDate();
+      setAccomplishmentsByDate(data);
+      console.log("Loaded accomplishments:", data.length, "dates");
+    } catch (error) {
+      console.error("Error loading accomplishments:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleDeleteAccomplishment = (id: string) => {
-    setAccomplishments(accomplishments.filter(item => item.id !== id));
-    console.log("Deleted accomplishment:", id);
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await loadAccomplishments();
+    setRefreshing(false);
   };
 
-  const formatDate = (date: Date) => {
-    return date.toLocaleDateString('en-US', { 
-      month: 'short', 
-      day: 'numeric', 
-      year: 'numeric' 
-    });
+  // Load accomplishments when screen comes into focus
+  useFocusEffect(
+    useCallback(() => {
+      loadAccomplishments();
+    }, [])
+  );
+
+  // Initial load
+  useEffect(() => {
+    loadAccomplishments();
+  }, []);
+
+  const getTotalCount = () => {
+    return accomplishmentsByDate.reduce(
+      (total, dateGroup) => total + dateGroup.accomplishments.length,
+      0
+    );
   };
 
   return (
@@ -57,12 +63,17 @@ export default function ProfileScreen() {
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
       >
         <View style={styles.header}>
           <Text style={styles.title}>My Accomplishments</Text>
-          <Text style={styles.subtitle}>
-            Track everything you&apos;ve achieved
-          </Text>
+          {isPro && accomplishmentsByDate.length > 0 && (
+            <Text style={styles.subtitle}>
+              {getTotalCount()} total wins 🎉
+            </Text>
+          )}
         </View>
 
         {!isPro ? (
@@ -83,8 +94,6 @@ export default function ProfileScreen() {
               style={styles.upgradeButton}
               onPress={() => {
                 console.log("Upgrade to Pro pressed - Superwall integration needed");
-                // TODO: Integrate Superwall here
-                // For demo purposes, let's enable pro mode
                 setIsPro(true);
               }}
               activeOpacity={0.8}
@@ -94,21 +103,11 @@ export default function ProfileScreen() {
           </View>
         ) : (
           <View style={styles.accomplishmentsContainer}>
-            <TouchableOpacity 
-              style={styles.addButton}
-              onPress={() => setShowAddModal(true)}
-              activeOpacity={0.8}
-            >
-              <IconSymbol
-                ios_icon_name="plus.circle.fill"
-                android_material_icon_name="add_circle"
-                size={24}
-                color="#FFFFFF"
-              />
-              <Text style={styles.addButtonText}>Add Accomplishment</Text>
-            </TouchableOpacity>
-
-            {accomplishments.length === 0 ? (
+            {loading ? (
+              <View style={styles.emptyState}>
+                <Text style={styles.emptyStateText}>Loading...</Text>
+              </View>
+            ) : accomplishmentsByDate.length === 0 ? (
               <View style={styles.emptyState}>
                 <IconSymbol
                   ios_icon_name="checkmark.circle"
@@ -120,89 +119,54 @@ export default function ProfileScreen() {
                   No accomplishments yet
                 </Text>
                 <Text style={styles.emptyStateSubtext}>
-                  Tap the button above to add your first win!
+                  Go to the home screen and press &quot;I did it!&quot; to record your first win!
                 </Text>
               </View>
             ) : (
               <View style={styles.list}>
-                {accomplishments.map((item) => (
-                  <View key={item.id} style={styles.accomplishmentCard}>
-                    <View style={styles.accomplishmentContent}>
-                      <IconSymbol
-                        ios_icon_name="checkmark.circle.fill"
-                        android_material_icon_name="check_circle"
-                        size={24}
-                        color={colors.primary}
-                      />
-                      <View style={styles.accomplishmentTextContainer}>
-                        <Text style={styles.accomplishmentText}>
-                          {item.text}
-                        </Text>
-                        <Text style={styles.accomplishmentDate}>
-                          {formatDate(item.date)}
+                {accomplishmentsByDate.map((dateGroup, dateIndex) => (
+                  <React.Fragment key={dateIndex}>
+                    <View style={styles.dateHeader}>
+                      <Text style={styles.dateText}>
+                        {formatDate(dateGroup.date)}
+                      </Text>
+                      <View style={styles.dateBadge}>
+                        <Text style={styles.dateBadgeText}>
+                          {dateGroup.accomplishments.length}
                         </Text>
                       </View>
                     </View>
-                    <TouchableOpacity
-                      onPress={() => handleDeleteAccomplishment(item.id)}
-                      style={styles.deleteButton}
-                      activeOpacity={0.7}
-                    >
-                      <IconSymbol
-                        ios_icon_name="trash"
-                        android_material_icon_name="delete"
-                        size={20}
-                        color={colors.textSecondary}
-                      />
-                    </TouchableOpacity>
-                  </View>
+                    {dateGroup.accomplishments.map((item, itemIndex) => (
+                      <View key={itemIndex} style={styles.accomplishmentCard}>
+                        <View style={styles.accomplishmentContent}>
+                          <IconSymbol
+                            ios_icon_name="checkmark.circle.fill"
+                            android_material_icon_name="check_circle"
+                            size={24}
+                            color={colors.primary}
+                          />
+                          <View style={styles.accomplishmentTextContainer}>
+                            <Text style={styles.accomplishmentText}>
+                              {item.text}
+                            </Text>
+                            <Text style={styles.accomplishmentTime}>
+                              {new Date(item.date).toLocaleTimeString('en-US', {
+                                hour: 'numeric',
+                                minute: '2-digit',
+                                hour12: true,
+                              })}
+                            </Text>
+                          </View>
+                        </View>
+                      </View>
+                    ))}
+                  </React.Fragment>
                 ))}
               </View>
             )}
           </View>
         )}
       </ScrollView>
-
-      <Modal
-        visible={showAddModal}
-        transparent={true}
-        animationType="fade"
-        onRequestClose={() => setShowAddModal(false)}
-      >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Add Accomplishment</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="What did you accomplish?"
-              placeholderTextColor={colors.textSecondary}
-              value={newAccomplishment}
-              onChangeText={setNewAccomplishment}
-              multiline
-              autoFocus
-            />
-            <View style={styles.modalButtons}>
-              <TouchableOpacity
-                style={[styles.modalButton, styles.cancelButton]}
-                onPress={() => {
-                  setShowAddModal(false);
-                  setNewAccomplishment("");
-                }}
-                activeOpacity={0.8}
-              >
-                <Text style={styles.cancelButtonText}>Cancel</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.modalButton, styles.saveButton]}
-                onPress={handleAddAccomplishment}
-                activeOpacity={0.8}
-              >
-                <Text style={styles.saveButtonText}>Save</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
-      </Modal>
     </View>
   );
 }
@@ -273,24 +237,6 @@ const styles = StyleSheet.create({
   accomplishmentsContainer: {
     flex: 1,
   },
-  addButton: {
-    backgroundColor: colors.primary,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 16,
-    paddingHorizontal: 24,
-    borderRadius: 16,
-    marginBottom: 24,
-    boxShadow: '0px 4px 12px rgba(76, 175, 80, 0.2)',
-    elevation: 4,
-    gap: 8,
-  },
-  addButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#FFFFFF',
-  },
   emptyState: {
     alignItems: 'center',
     justifyContent: 'center',
@@ -307,24 +253,46 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: colors.textSecondary,
     textAlign: 'center',
+    paddingHorizontal: 20,
   },
   list: {
     gap: 12,
+  },
+  dateHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginTop: 16,
+    marginBottom: 12,
+    paddingHorizontal: 4,
+  },
+  dateText: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: colors.text,
+  },
+  dateBadge: {
+    backgroundColor: colors.primary,
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    borderRadius: 12,
+  },
+  dateBadgeText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#FFFFFF',
   },
   accomplishmentCard: {
     backgroundColor: colors.card,
     borderRadius: 16,
     padding: 16,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    marginBottom: 8,
     boxShadow: '0px 2px 8px rgba(0, 0, 0, 0.06)',
     elevation: 2,
   },
   accomplishmentContent: {
     flexDirection: 'row',
-    alignItems: 'center',
-    flex: 1,
+    alignItems: 'flex-start',
     gap: 12,
   },
   accomplishmentTextContainer: {
@@ -335,70 +303,10 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     color: colors.text,
     marginBottom: 4,
+    lineHeight: 22,
   },
-  accomplishmentDate: {
+  accomplishmentTime: {
     fontSize: 12,
     color: colors.textSecondary,
-  },
-  deleteButton: {
-    padding: 8,
-  },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 20,
-  },
-  modalContent: {
-    backgroundColor: colors.card,
-    borderRadius: 20,
-    padding: 24,
-    width: '100%',
-    maxWidth: 400,
-    boxShadow: '0px 8px 24px rgba(0, 0, 0, 0.2)',
-    elevation: 8,
-  },
-  modalTitle: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: colors.text,
-    marginBottom: 16,
-  },
-  input: {
-    backgroundColor: colors.background,
-    borderRadius: 12,
-    padding: 16,
-    fontSize: 16,
-    color: colors.text,
-    minHeight: 100,
-    textAlignVertical: 'top',
-    marginBottom: 20,
-  },
-  modalButtons: {
-    flexDirection: 'row',
-    gap: 12,
-  },
-  modalButton: {
-    flex: 1,
-    paddingVertical: 14,
-    borderRadius: 12,
-    alignItems: 'center',
-  },
-  cancelButton: {
-    backgroundColor: colors.highlight,
-  },
-  cancelButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: colors.text,
-  },
-  saveButton: {
-    backgroundColor: colors.primary,
-  },
-  saveButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#FFFFFF',
   },
 });

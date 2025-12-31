@@ -1,9 +1,10 @@
 
 import React, { useRef, useState } from "react";
-import { StyleSheet, View, Text, TouchableOpacity, Platform, TextInput } from "react-native";
+import { StyleSheet, View, Text, TouchableOpacity, Platform, TextInput, Alert } from "react-native";
 import { colors } from "@/styles/commonStyles";
 import * as Haptics from "expo-haptics";
 import ConfettiCannon from "react-native-confetti-cannon";
+import { saveAccomplishment } from "@/utils/storageService";
 
 export default function HomeScreen() {
   const confettiRef = useRef<any>(null);
@@ -11,7 +12,7 @@ export default function HomeScreen() {
   const [isPro, setIsPro] = useState(true); // Set to true to show pro version
   const [accomplishment, setAccomplishment] = useState("");
 
-  const handlePress = () => {
+  const handlePress = async () => {
     console.log("I did it button pressed!");
     
     // Trigger gentle haptic feedback
@@ -29,11 +30,29 @@ export default function HomeScreen() {
     // Increment celebration count
     setCelebrationCount(prev => prev + 1);
 
-    // Log accomplishment if pro user
+    // Save accomplishment if pro user and text is provided
     if (isPro && accomplishment.trim()) {
-      console.log("Accomplishment logged:", accomplishment);
-      // TODO: Save to storage with date
-      setAccomplishment(""); // Clear the input after logging
+      try {
+        await saveAccomplishment(accomplishment);
+        setAccomplishment(""); // Clear the input after saving
+      } catch (error) {
+        console.error("Error saving accomplishment:", error);
+        
+        // Handle storage full error
+        if (error instanceof Error && error.message === 'STORAGE_FULL') {
+          Alert.alert(
+            'Storage Full',
+            'Your device is out of storage space. Please free up some space and try again.',
+            [{ text: 'OK' }]
+          );
+        } else {
+          Alert.alert(
+            'Error',
+            'Failed to save accomplishment. Please try again.',
+            [{ text: 'OK' }]
+          );
+        }
+      }
     }
   };
 
