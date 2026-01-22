@@ -48,7 +48,7 @@ export default function HomeScreen() {
         } else {
           Alert.alert(
             'Error',
-            'Failed to save accomplishment. Please try again.',
+            'Failed to save. Please try again.',
             [{ text: 'OK' }]
           );
         }
@@ -83,7 +83,7 @@ export default function HomeScreen() {
           <View style={styles.inputContainer}>
             <TextInput
               style={styles.textInput}
-              placeholder="What did you accomplish?"
+              placeholder="What did you do?"
               placeholderTextColor="#999999"
               value={accomplishment}
               onChangeText={setAccomplishment}
@@ -95,7 +95,7 @@ export default function HomeScreen() {
         )}
 
         <Text style={styles.subtitle}>
-          Press the button every time you accomplish something
+          Press the button every time you do something
         </Text>
       </View>
 
@@ -103,7 +103,7 @@ export default function HomeScreen() {
       {!isPro && (
         <View style={styles.upgradeContainer}>
           <Text style={styles.upgradeText}>
-            Want to track what you accomplished?
+            Want to track what you did?
           </Text>
           <TouchableOpacity 
             style={styles.upgradeButton}

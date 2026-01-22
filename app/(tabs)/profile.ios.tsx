@@ -68,7 +68,7 @@ export default function ProfileScreen() {
         }
       >
         <View style={styles.header}>
-          <Text style={styles.title}>My Accomplishments</Text>
+          <Text style={styles.title}>My Wins</Text>
           {isPro && accomplishmentsByDate.length > 0 && (
             <Text style={styles.subtitle}>
               {getTotalCount()} total wins 🎉
@@ -88,7 +88,7 @@ export default function ProfileScreen() {
             </View>
             <Text style={styles.proTitle}>Upgrade to Pro</Text>
             <Text style={styles.proDescription}>
-              Track what you accomplished with dates and notes. Never forget your wins!
+              Track what you did with dates and notes. Never forget your wins!
             </Text>
             <TouchableOpacity 
               style={styles.upgradeButton}
@@ -116,7 +116,7 @@ export default function ProfileScreen() {
                   color={colors.highlight}
                 />
                 <Text style={styles.emptyStateText}>
-                  No accomplishments yet
+                  No wins yet
                 </Text>
                 <Text style={styles.emptyStateSubtext}>
                   Go to the home screen and press &quot;I did it!&quot; to record your first win!
