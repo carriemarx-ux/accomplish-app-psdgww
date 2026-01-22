@@ -1,6 +1,6 @@
 
 import React, { useRef, useState } from "react";
-import { StyleSheet, View, Text, TouchableOpacity, Platform, TextInput, Alert, Vibration } from "react-native";
+import { StyleSheet, View, Text, TouchableOpacity, Platform, TextInput, Alert, Vibration, KeyboardAvoidingView, ScrollView } from "react-native";
 import { colors } from "@/styles/commonStyles";
 import * as Haptics from "expo-haptics";
 import ConfettiCannon from "react-native-confetti-cannon";
@@ -94,66 +94,76 @@ export default function HomeScreen() {
   };
 
   return (
-    <View style={styles.container}>
-      {/* Header Section - Full Width */}
-      <View style={styles.headerSection}>
-        <Text style={styles.title}>Celebrate Your Wins!</Text>
-        <View style={styles.counterRow}>
-          <View style={styles.counterContainer}>
-            <Text style={styles.counterText}>🎉 {celebrationCount}</Text>
+    <KeyboardAvoidingView 
+      style={styles.container}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
+    >
+      <ScrollView 
+        contentContainerStyle={styles.scrollContent}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Header Section - Full Width */}
+        <View style={styles.headerSection}>
+          <Text style={styles.title}>Celebrate Your Wins!</Text>
+          <View style={styles.counterRow}>
+            <View style={styles.counterContainer}>
+              <Text style={styles.counterText}>🎉 {celebrationCount}</Text>
+            </View>
           </View>
         </View>
-      </View>
 
-      {/* Main Content */}
-      <View style={styles.content}>
-        <TouchableOpacity 
-          style={styles.button}
-          onPress={handlePress}
-          activeOpacity={0.8}
-        >
-          <Text style={styles.buttonText}>I did it!</Text>
-        </TouchableOpacity>
+        {/* Main Content */}
+        <View style={styles.content}>
+          <TouchableOpacity 
+            style={styles.button}
+            onPress={handlePress}
+            activeOpacity={0.8}
+          >
+            <Text style={styles.buttonText}>I did it!</Text>
+          </TouchableOpacity>
 
-        {/* Pro Feature: Text Input */}
-        {isPro && (
-          <View style={styles.inputContainer}>
-            <TextInput
-              style={styles.textInput}
-              placeholder="What did you do?"
-              placeholderTextColor="#999999"
-              value={accomplishment}
-              onChangeText={setAccomplishment}
-              multiline
-              numberOfLines={3}
-              textAlignVertical="top"
-            />
+          {/* Pro Feature: Text Input */}
+          {isPro && (
+            <View style={styles.inputContainer}>
+              <TextInput
+                style={styles.textInput}
+                placeholder="What did you do?"
+                placeholderTextColor="#999999"
+                value={accomplishment}
+                onChangeText={setAccomplishment}
+                multiline
+                numberOfLines={3}
+                textAlignVertical="top"
+              />
+            </View>
+          )}
+
+          <Text style={styles.subtitle}>
+            Press the button every time you do something!
+          </Text>
+        </View>
+
+        {/* Upgrade Section - Only show if not pro */}
+        {!isPro && (
+          <View style={styles.upgradeContainer}>
+            <Text style={styles.upgradeText}>
+              Want to track what you did?
+            </Text>
+            <TouchableOpacity 
+              style={styles.upgradeButton}
+              onPress={() => {
+                console.log("Upgrade pressed - Superwall integration coming");
+                setIsPro(true); // Simulate upgrade for now
+              }}
+              activeOpacity={0.7}
+            >
+              <Text style={styles.upgradeButtonText}>Upgrade to Pro ✨</Text>
+            </TouchableOpacity>
           </View>
         )}
-
-        <Text style={styles.subtitle}>
-          Press the button every time you do something!
-        </Text>
-      </View>
-
-      {/* Upgrade Section - Only show if not pro */}
-      {!isPro && (
-        <View style={styles.upgradeContainer}>
-          <Text style={styles.upgradeText}>
-            Want to track what you did?
-          </Text>
-          <TouchableOpacity 
-            style={styles.upgradeButton}
-            onPress={() => {
-              console.log("Upgrade pressed - Superwall integration coming");
-              setIsPro(true); // Simulate upgrade for now
-            }}
-            activeOpacity={0.7}
-          >
-            <Text style={styles.upgradeButtonText}>Upgrade to Pro ✨</Text>
-          </TouchableOpacity>
-        </View>
-      )}
+      </ScrollView>
 
       <ConfettiCannon
         ref={confettiRef}
@@ -164,7 +174,7 @@ export default function HomeScreen() {
         fallSpeed={2500}
         colors={[colors.primary, colors.secondary, colors.accent, '#FF6B6B', '#4ECDC4']}
       />
-    </View>
+    </KeyboardAvoidingView>
   );
 }
 
@@ -172,6 +182,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.background,
+  },
+  scrollContent: {
+    flexGrow: 1,
   },
   headerSection: {
     paddingTop: Platform.OS === 'android' ? 48 : 60,
