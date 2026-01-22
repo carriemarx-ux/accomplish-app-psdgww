@@ -95,7 +95,7 @@ export default function HomeScreen() {
         )}
 
         <Text style={styles.subtitle}>
-          Press the button every time you do something
+          Press the button every time you do something!
         </Text>
       </View>
 
