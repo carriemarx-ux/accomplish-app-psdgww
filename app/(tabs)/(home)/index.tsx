@@ -1,6 +1,6 @@
 
 import React, { useRef, useState } from "react";
-import { StyleSheet, View, Text, TouchableOpacity, Platform, TextInput, Alert } from "react-native";
+import { StyleSheet, View, Text, TouchableOpacity, Platform, TextInput, Alert, Vibration } from "react-native";
 import { colors } from "@/styles/commonStyles";
 import * as Haptics from "expo-haptics";
 import ConfettiCannon from "react-native-confetti-cannon";
@@ -12,15 +12,52 @@ export default function HomeScreen() {
   const [isPro, setIsPro] = useState(true); // Set to true to show pro version
   const [accomplishment, setAccomplishment] = useState("");
 
+  const triggerGentleHaptic = () => {
+    console.log("Triggering gentle fading haptic feedback");
+    
+    if (Platform.OS === 'ios') {
+      // iOS: Use a sequence of haptic impacts with decreasing intensity
+      const hapticSequence = async () => {
+        await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+        setTimeout(() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium), 150);
+        setTimeout(() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light), 300);
+        setTimeout(() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light), 450);
+        setTimeout(() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light), 600);
+        setTimeout(() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light), 750);
+        setTimeout(() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light), 900);
+      };
+      hapticSequence();
+    } else if (Platform.OS === 'android') {
+      // Android: Use Vibration API with a custom pattern that fades
+      // Pattern: [delay, vibrate, delay, vibrate, ...]
+      // Vibration intensity decreases by using shorter vibration durations
+      const pattern = [
+        0,    // Start immediately
+        100,  // Strong vibration (100ms)
+        50,   // Short pause
+        80,   // Medium-strong vibration
+        50,   // Short pause
+        60,   // Medium vibration
+        50,   // Short pause
+        40,   // Light vibration
+        50,   // Short pause
+        30,   // Lighter vibration
+        50,   // Short pause
+        20,   // Very light vibration
+        50,   // Short pause
+        15,   // Very light vibration
+        50,   // Short pause
+        10,   // Barely noticeable
+      ];
+      Vibration.vibrate(pattern);
+    }
+  };
+
   const handlePress = async () => {
     console.log("I did it button pressed!");
     
-    // Trigger gentle haptic feedback
-    if (Platform.OS === 'ios') {
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    } else if (Platform.OS === 'android') {
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    }
+    // Trigger gentle fading haptic feedback
+    triggerGentleHaptic();
 
     // Trigger confetti
     if (confettiRef.current) {

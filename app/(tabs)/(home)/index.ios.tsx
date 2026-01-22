@@ -1,6 +1,6 @@
 
 import React, { useRef, useState } from "react";
-import { StyleSheet, View, Text, TouchableOpacity, TextInput, Alert } from "react-native";
+import { StyleSheet, View, Text, TouchableOpacity, TextInput, Alert, Vibration } from "react-native";
 import { colors } from "@/styles/commonStyles";
 import * as Haptics from "expo-haptics";
 import ConfettiCannon from "react-native-confetti-cannon";
@@ -12,11 +12,27 @@ export default function HomeScreen() {
   const [isPro, setIsPro] = useState(true); // Set to true to show pro version
   const [accomplishment, setAccomplishment] = useState("");
 
+  const triggerGentleHaptic = () => {
+    console.log("Triggering gentle fading haptic feedback");
+    
+    // iOS: Use a sequence of haptic impacts with decreasing intensity
+    const hapticSequence = async () => {
+      await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+      setTimeout(() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium), 150);
+      setTimeout(() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light), 300);
+      setTimeout(() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light), 450);
+      setTimeout(() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light), 600);
+      setTimeout(() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light), 750);
+      setTimeout(() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light), 900);
+    };
+    hapticSequence();
+  };
+
   const handlePress = async () => {
     console.log("I did it button pressed!");
     
-    // Trigger gentle haptic feedback
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    // Trigger gentle fading haptic feedback
+    triggerGentleHaptic();
 
     // Trigger confetti
     if (confettiRef.current) {
