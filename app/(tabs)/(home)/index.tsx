@@ -1,6 +1,6 @@
 
 import React, { useRef, useState } from "react";
-import { StyleSheet, View, Text, TouchableOpacity, Platform, TextInput, Alert, Vibration, KeyboardAvoidingView, ScrollView } from "react-native";
+import { StyleSheet, View, Text, TouchableOpacity, Platform, TextInput, Alert, Vibration, KeyboardAvoidingView, ScrollView, Keyboard } from "react-native";
 import { colors } from "@/styles/commonStyles";
 import * as Haptics from "expo-haptics";
 import ConfettiCannon from "react-native-confetti-cannon";
@@ -55,6 +55,10 @@ export default function HomeScreen() {
 
   const handlePress = async () => {
     console.log("I did it button pressed!");
+    
+    // Dismiss keyboard immediately when button is pressed
+    Keyboard.dismiss();
+    console.log("Keyboard dismissed");
     
     // Trigger gentle fading haptic feedback
     triggerGentleHaptic();
