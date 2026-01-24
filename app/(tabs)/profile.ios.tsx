@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   RefreshControl,
 } from "react-native";
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors } from "@/styles/commonStyles";
 import { IconSymbol } from "@/components/IconSymbol";
 import { getAccomplishmentsByDate, formatDate, type AccomplishmentsByDate } from "@/utils/storageService";
@@ -57,8 +58,10 @@ export default function ProfileScreen() {
     );
   };
 
+  const totalCountValue = getTotalCount();
+
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['top']}>
       <ScrollView 
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
@@ -71,7 +74,7 @@ export default function ProfileScreen() {
           <Text style={styles.title}>My Wins</Text>
           {isPro && accomplishmentsByDate.length > 0 && (
             <Text style={styles.subtitle}>
-              {getTotalCount()} total wins 🎉
+              {totalCountValue} total wins 🎉
             </Text>
           )}
         </View>
@@ -124,50 +127,56 @@ export default function ProfileScreen() {
               </View>
             ) : (
               <View style={styles.list}>
-                {accomplishmentsByDate.map((dateGroup, dateIndex) => (
-                  <React.Fragment key={dateIndex}>
-                    <View style={styles.dateHeader}>
-                      <Text style={styles.dateText}>
-                        {formatDate(dateGroup.date)}
-                      </Text>
-                      <View style={styles.dateBadge}>
-                        <Text style={styles.dateBadgeText}>
-                          {dateGroup.accomplishments.length}
+                {accomplishmentsByDate.map((dateGroup, dateIndex) => {
+                  const formattedDate = formatDate(dateGroup.date);
+                  return (
+                    <React.Fragment key={dateIndex}>
+                      <View style={styles.dateHeader}>
+                        <Text style={styles.dateText}>
+                          {formattedDate}
                         </Text>
-                      </View>
-                    </View>
-                    {dateGroup.accomplishments.map((item, itemIndex) => (
-                      <View key={itemIndex} style={styles.accomplishmentCard}>
-                        <View style={styles.accomplishmentContent}>
-                          <IconSymbol
-                            ios_icon_name="star.fill"
-                            android_material_icon_name="star"
-                            size={24}
-                            color={colors.primary}
-                          />
-                          <View style={styles.accomplishmentTextContainer}>
-                            <Text style={styles.accomplishmentText}>
-                              {item.text}
-                            </Text>
-                            <Text style={styles.accomplishmentTime}>
-                              {new Date(item.date).toLocaleTimeString('en-US', {
-                                hour: 'numeric',
-                                minute: '2-digit',
-                                hour12: true,
-                              })}
-                            </Text>
-                          </View>
+                        <View style={styles.dateBadge}>
+                          <Text style={styles.dateBadgeText}>
+                            {dateGroup.accomplishments.length}
+                          </Text>
                         </View>
                       </View>
-                    ))}
-                  </React.Fragment>
-                ))}
+                      {dateGroup.accomplishments.map((item, itemIndex) => {
+                        const timeString = new Date(item.date).toLocaleTimeString('en-US', {
+                          hour: 'numeric',
+                          minute: '2-digit',
+                          hour12: true,
+                        });
+                        return (
+                          <View key={itemIndex} style={styles.accomplishmentCard}>
+                            <View style={styles.accomplishmentContent}>
+                              <IconSymbol
+                                ios_icon_name="star.fill"
+                                android_material_icon_name="star"
+                                size={24}
+                                color={colors.primary}
+                              />
+                              <View style={styles.accomplishmentTextContainer}>
+                                <Text style={styles.accomplishmentText}>
+                                  {item.text}
+                                </Text>
+                                <Text style={styles.accomplishmentTime}>
+                                  {timeString}
+                                </Text>
+                              </View>
+                            </View>
+                          </View>
+                        );
+                      })}
+                    </React.Fragment>
+                  );
+                })}
               </View>
             )}
           </View>
         )}
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 }
 
