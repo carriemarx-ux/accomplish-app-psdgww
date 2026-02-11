@@ -15,7 +15,7 @@ import { getAccomplishmentsByDate, formatDate, type AccomplishmentsByDate } from
 import { useFocusEffect } from "expo-router";
 
 export default function ProfileScreen() {
-  const [isPro, setIsPro] = useState(true); // Set to true to show pro version
+  const [isPro, setIsPro] = useState(true);
   const [accomplishmentsByDate, setAccomplishmentsByDate] = useState<AccomplishmentsByDate[]>([]);
   const [refreshing, setRefreshing] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -39,14 +39,12 @@ export default function ProfileScreen() {
     setRefreshing(false);
   };
 
-  // Load accomplishments when screen comes into focus
   useFocusEffect(
     useCallback(() => {
       loadAccomplishments();
     }, [])
   );
 
-  // Initial load
   useEffect(() => {
     loadAccomplishments();
   }, []);
@@ -57,6 +55,8 @@ export default function ProfileScreen() {
       0
     );
   };
+
+  const totalCountValue = getTotalCount();
 
   return (
     <View style={styles.container}>
@@ -69,27 +69,24 @@ export default function ProfileScreen() {
         }
       >
         <View style={styles.header}>
+          <Text style={styles.headerEmoji}>🏆</Text>
           <Text style={styles.title}>My Wins</Text>
           {isPro && accomplishmentsByDate.length > 0 && (
-            <Text style={styles.subtitle}>
-              {getTotalCount()} total wins 🎉
-            </Text>
+            <View style={styles.statsContainer}>
+              <View style={styles.statBadge}>
+                <Text style={styles.statNumber}>{totalCountValue}</Text>
+                <Text style={styles.statLabel}>total wins</Text>
+              </View>
+            </View>
           )}
         </View>
 
         {!isPro ? (
           <View style={styles.proPrompt}>
-            <View style={styles.proIcon}>
-              <IconSymbol
-                ios_icon_name="star.fill"
-                android_material_icon_name="star"
-                size={48}
-                color={colors.secondary}
-              />
-            </View>
-            <Text style={styles.proTitle}>Upgrade to Pro</Text>
+            <Text style={styles.proEmoji}>⭐</Text>
+            <Text style={styles.proTitle}>Unlock Your Win History</Text>
             <Text style={styles.proDescription}>
-              Track what you did with dates and notes. Never forget your wins!
+              Track what you did with dates and notes. Never forget your amazing achievements! 🌟
             </Text>
             <TouchableOpacity 
               style={styles.upgradeButton}
@@ -106,63 +103,70 @@ export default function ProfileScreen() {
           <View style={styles.accomplishmentsContainer}>
             {loading ? (
               <View style={styles.emptyState}>
-                <Text style={styles.emptyStateText}>Loading...</Text>
+                <Text style={styles.loadingEmoji}>⏳</Text>
+                <Text style={styles.emptyStateText}>Loading your wins...</Text>
               </View>
             ) : accomplishmentsByDate.length === 0 ? (
               <View style={styles.emptyState}>
-                <IconSymbol
-                  ios_icon_name="checkmark.circle"
-                  android_material_icon_name="check_circle"
-                  size={64}
-                  color={colors.highlight}
-                />
+                <Text style={styles.emptyEmoji}>🎯</Text>
                 <Text style={styles.emptyStateText}>
-                  No wins yet
+                  No wins yet!
                 </Text>
                 <Text style={styles.emptyStateSubtext}>
-                  Go to the home screen and press &quot;I did it!&quot; to record your first win!
+                  Go to the home screen and press &quot;I did it!&quot; to record your first amazing win! 🌈
                 </Text>
               </View>
             ) : (
               <View style={styles.list}>
-                {accomplishmentsByDate.map((dateGroup, dateIndex) => (
-                  <React.Fragment key={dateIndex}>
-                    <View style={styles.dateHeader}>
-                      <Text style={styles.dateText}>
-                        {formatDate(dateGroup.date)}
-                      </Text>
-                      <View style={styles.dateBadge}>
-                        <Text style={styles.dateBadgeText}>
-                          {dateGroup.accomplishments.length}
+                {accomplishmentsByDate.map((dateGroup, dateIndex) => {
+                  const formattedDate = formatDate(dateGroup.date);
+                  const accomplishmentCount = dateGroup.accomplishments.length;
+                  
+                  return (
+                    <React.Fragment key={dateIndex}>
+                      <View style={styles.dateHeader}>
+                        <Text style={styles.dateText}>
+                          {formattedDate}
                         </Text>
-                      </View>
-                    </View>
-                    {dateGroup.accomplishments.map((item, itemIndex) => (
-                      <View key={itemIndex} style={styles.accomplishmentCard}>
-                        <View style={styles.accomplishmentContent}>
-                          <IconSymbol
-                            ios_icon_name="star.fill"
-                            android_material_icon_name="star"
-                            size={24}
-                            color={colors.primary}
-                          />
-                          <View style={styles.accomplishmentTextContainer}>
-                            <Text style={styles.accomplishmentText}>
-                              {item.text}
-                            </Text>
-                            <Text style={styles.accomplishmentTime}>
-                              {new Date(item.date).toLocaleTimeString('en-US', {
-                                hour: 'numeric',
-                                minute: '2-digit',
-                                hour12: true,
-                              })}
-                            </Text>
-                          </View>
+                        <View style={styles.dateBadge}>
+                          <Text style={styles.dateBadgeText}>
+                            {accomplishmentCount}
+                          </Text>
                         </View>
                       </View>
-                    ))}
-                  </React.Fragment>
-                ))}
+                      {dateGroup.accomplishments.map((item, itemIndex) => {
+                        const timeString = new Date(item.date).toLocaleTimeString('en-US', {
+                          hour: 'numeric',
+                          minute: '2-digit',
+                          hour12: true,
+                        });
+                        
+                        return (
+                          <View key={itemIndex} style={styles.accomplishmentCard}>
+                            <View style={styles.accomplishmentContent}>
+                              <View style={styles.iconContainer}>
+                                <IconSymbol
+                                  ios_icon_name="star.fill"
+                                  android_material_icon_name="star"
+                                  size={28}
+                                  color={colors.secondary}
+                                />
+                              </View>
+                              <View style={styles.accomplishmentTextContainer}>
+                                <Text style={styles.accomplishmentText}>
+                                  {item.text}
+                                </Text>
+                                <Text style={styles.accomplishmentTime}>
+                                  {timeString}
+                                </Text>
+                              </View>
+                            </View>
+                          </View>
+                        );
+                      })}
+                    </React.Fragment>
+                  );
+                })}
               </View>
             )}
           </View>
@@ -187,53 +191,86 @@ const styles = StyleSheet.create({
   },
   header: {
     marginBottom: 32,
+    alignItems: 'center',
   },
-  title: {
-    fontSize: 32,
-    fontWeight: '800',
-    color: colors.text,
+  headerEmoji: {
+    fontSize: 48,
     marginBottom: 8,
   },
-  subtitle: {
-    fontSize: 16,
+  title: {
+    fontSize: 36,
+    fontWeight: '900',
+    color: colors.text,
+    marginBottom: 16,
+    letterSpacing: -0.5,
+  },
+  statsContainer: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  statBadge: {
+    backgroundColor: colors.card,
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 20,
+    alignItems: 'center',
+    boxShadow: `0px 4px 16px ${colors.cardShadow}`,
+    elevation: 4,
+    borderWidth: 2,
+    borderColor: colors.accent,
+  },
+  statNumber: {
+    fontSize: 24,
+    fontWeight: '900',
+    color: colors.accent,
+  },
+  statLabel: {
+    fontSize: 12,
+    fontWeight: '600',
     color: colors.textSecondary,
+    marginTop: 2,
   },
   proPrompt: {
     backgroundColor: colors.card,
-    borderRadius: 20,
-    padding: 32,
+    borderRadius: 24,
+    padding: 40,
     alignItems: 'center',
-    boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.08)',
-    elevation: 3,
+    boxShadow: `0px 8px 24px ${colors.cardShadow}`,
+    elevation: 6,
+    borderWidth: 2,
+    borderColor: colors.border,
   },
-  proIcon: {
+  proEmoji: {
+    fontSize: 72,
     marginBottom: 16,
   },
   proTitle: {
-    fontSize: 24,
-    fontWeight: '700',
+    fontSize: 26,
+    fontWeight: '900',
     color: colors.text,
     marginBottom: 12,
+    textAlign: 'center',
   },
   proDescription: {
     fontSize: 16,
     color: colors.textSecondary,
     textAlign: 'center',
-    marginBottom: 24,
+    marginBottom: 28,
     lineHeight: 24,
+    fontWeight: '500',
   },
   upgradeButton: {
-    backgroundColor: colors.secondary,
-    paddingVertical: 16,
-    paddingHorizontal: 32,
-    borderRadius: 24,
-    boxShadow: '0px 4px 12px rgba(255, 193, 7, 0.2)',
-    elevation: 4,
+    backgroundColor: colors.upgradeAccent,
+    paddingVertical: 18,
+    paddingHorizontal: 40,
+    borderRadius: 30,
+    boxShadow: '0px 6px 20px rgba(156, 39, 176, 0.3)',
+    elevation: 8,
   },
   upgradeButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: colors.text,
+    fontSize: 18,
+    fontWeight: '800',
+    color: colors.card,
   },
   accomplishmentsContainer: {
     flex: 1,
@@ -241,20 +278,29 @@ const styles = StyleSheet.create({
   emptyState: {
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 60,
+    paddingVertical: 80,
+  },
+  emptyEmoji: {
+    fontSize: 80,
+    marginBottom: 16,
+  },
+  loadingEmoji: {
+    fontSize: 64,
+    marginBottom: 16,
   },
   emptyStateText: {
-    fontSize: 18,
-    fontWeight: '600',
+    fontSize: 22,
+    fontWeight: '800',
     color: colors.text,
-    marginTop: 16,
-    marginBottom: 8,
+    marginBottom: 12,
   },
   emptyStateSubtext: {
-    fontSize: 14,
+    fontSize: 16,
     color: colors.textSecondary,
     textAlign: 'center',
     paddingHorizontal: 20,
+    lineHeight: 24,
+    fontWeight: '500',
   },
   list: {
     gap: 12,
@@ -263,51 +309,64 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginTop: 16,
-    marginBottom: 12,
+    marginTop: 20,
+    marginBottom: 16,
     paddingHorizontal: 4,
   },
   dateText: {
-    fontSize: 18,
-    fontWeight: '700',
+    fontSize: 20,
+    fontWeight: '800',
     color: colors.text,
   },
   dateBadge: {
-    backgroundColor: colors.primary,
-    paddingHorizontal: 12,
-    paddingVertical: 4,
-    borderRadius: 12,
+    backgroundColor: colors.accentBlue,
+    paddingHorizontal: 16,
+    paddingVertical: 6,
+    borderRadius: 16,
+    boxShadow: '0px 2px 8px rgba(78, 205, 196, 0.3)',
+    elevation: 3,
   },
   dateBadgeText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: '800',
+    color: colors.card,
   },
   accomplishmentCard: {
     backgroundColor: colors.card,
-    borderRadius: 16,
-    padding: 16,
-    marginBottom: 8,
-    boxShadow: '0px 2px 8px rgba(0, 0, 0, 0.06)',
-    elevation: 2,
+    borderRadius: 20,
+    padding: 20,
+    marginBottom: 12,
+    boxShadow: `0px 4px 16px ${colors.cardShadow}`,
+    elevation: 4,
+    borderWidth: 2,
+    borderColor: colors.border,
   },
   accomplishmentContent: {
     flexDirection: 'row',
     alignItems: 'flex-start',
-    gap: 12,
+    gap: 16,
+  },
+  iconContainer: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: colors.highlight,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   accomplishmentTextContainer: {
     flex: 1,
   },
   accomplishmentText: {
-    fontSize: 16,
-    fontWeight: '500',
+    fontSize: 17,
+    fontWeight: '600',
     color: colors.text,
-    marginBottom: 4,
-    lineHeight: 22,
+    marginBottom: 6,
+    lineHeight: 24,
   },
   accomplishmentTime: {
-    fontSize: 12,
+    fontSize: 13,
     color: colors.textSecondary,
+    fontWeight: '600',
   },
 });
