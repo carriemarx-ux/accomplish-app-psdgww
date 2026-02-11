@@ -58,6 +58,7 @@ export default function HomeScreen() {
     if (isPro && accomplishment.trim()) {
       try {
         await saveAccomplishment(accomplishment);
+        console.log("Accomplishment saved:", accomplishment);
         setAccomplishment("");
       } catch (error) {
         console.error("Error saving accomplishment:", error);
@@ -104,6 +105,19 @@ export default function HomeScreen() {
           </View>
         </View>
 
+        <View style={styles.inputContainer}>
+          <TextInput
+            style={styles.textInput}
+            placeholder="What did you do? ✨"
+            placeholderTextColor={colors.textLight}
+            value={accomplishment}
+            onChangeText={setAccomplishment}
+            multiline
+            numberOfLines={3}
+            textAlignVertical="top"
+          />
+        </View>
+
         <View style={styles.content}>
           <View style={styles.buttonGlow}>
             <TouchableOpacity 
@@ -116,21 +130,6 @@ export default function HomeScreen() {
             </TouchableOpacity>
           </View>
 
-          {isPro && (
-            <View style={styles.inputContainer}>
-              <TextInput
-                style={styles.textInput}
-                placeholder="What did you do? ✨"
-                placeholderTextColor={colors.textLight}
-                value={accomplishment}
-                onChangeText={setAccomplishment}
-                multiline
-                numberOfLines={3}
-                textAlignVertical="top"
-              />
-            </View>
-          )}
-
           <Text style={styles.description}>
             Tap the button every time you achieve something amazing! 🌈
           </Text>
@@ -140,10 +139,10 @@ export default function HomeScreen() {
           <View style={styles.upgradeContainer}>
             <Text style={styles.upgradeEmoji}>⭐</Text>
             <Text style={styles.upgradeTitle}>
-              Track Your Wins!
+              Save Your Wins!
             </Text>
             <Text style={styles.upgradeText}>
-              Remember what you did with dates and notes
+              Keep a permanent record with dates and notes
             </Text>
             <TouchableOpacity 
               style={styles.upgradeButton}
@@ -238,52 +237,10 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: colors.textSecondary,
   },
-  content: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 20,
-    paddingBottom: 40,
-  },
-  buttonGlow: {
-    padding: 8,
-    borderRadius: 120,
-    backgroundColor: colors.primaryLight,
-    opacity: 0.3,
-    position: 'absolute',
-    top: '35%',
-  },
-  button: {
-    width: 220,
-    height: 220,
-    borderRadius: 110,
-    backgroundColor: colors.primary,
-    alignItems: 'center',
-    justifyContent: 'center',
-    boxShadow: `0px 16px 50px ${colors.cardShadow}`,
-    elevation: 16,
-    borderWidth: 6,
-    borderColor: colors.card,
-    position: 'relative',
-  },
-  buttonEmoji: {
-    fontSize: 48,
-    marginBottom: 8,
-  },
-  buttonText: {
-    fontSize: 32,
-    fontWeight: '900',
-    color: colors.card,
-    textAlign: 'center',
-    textShadowColor: 'rgba(0, 0, 0, 0.2)',
-    textShadowOffset: { width: 0, height: 2 },
-    textShadowRadius: 4,
-    letterSpacing: -0.5,
-  },
   inputContainer: {
     width: '100%',
-    marginTop: 280,
     paddingHorizontal: 20,
+    marginBottom: 30,
   },
   textInput: {
     backgroundColor: colors.card,
@@ -299,11 +256,51 @@ const styles = StyleSheet.create({
     elevation: 4,
     fontWeight: '500',
   },
+  content: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 20,
+    paddingBottom: 40,
+    minHeight: 300,
+  },
+  buttonGlow: {
+    padding: 8,
+    borderRadius: 120,
+    backgroundColor: colors.primaryLight,
+    opacity: 0.3,
+  },
+  button: {
+    width: 220,
+    height: 220,
+    borderRadius: 110,
+    backgroundColor: colors.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+    boxShadow: `0px 16px 50px ${colors.cardShadow}`,
+    elevation: 16,
+    borderWidth: 6,
+    borderColor: colors.card,
+  },
+  buttonEmoji: {
+    fontSize: 48,
+    marginBottom: 8,
+  },
+  buttonText: {
+    fontSize: 32,
+    fontWeight: '900',
+    color: colors.card,
+    textAlign: 'center',
+    textShadowColor: 'rgba(0, 0, 0, 0.2)',
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4,
+    letterSpacing: -0.5,
+  },
   description: {
     fontSize: 16,
     color: colors.textSecondary,
     textAlign: 'center',
-    marginTop: 280,
+    marginTop: 30,
     paddingHorizontal: 20,
     fontWeight: '600',
   },
