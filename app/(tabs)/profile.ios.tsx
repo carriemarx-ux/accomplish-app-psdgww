@@ -15,7 +15,7 @@ import { getAccomplishmentsByDate, formatDate, type AccomplishmentsByDate } from
 import { useFocusEffect } from "expo-router";
 
 export default function ProfileScreen() {
-  const [isPro, setIsPro] = useState(true);
+  const [isPro, setIsPro] = useState(true); // Set to true to show pro version
   const [accomplishmentsByDate, setAccomplishmentsByDate] = useState<AccomplishmentsByDate[]>([]);
   const [refreshing, setRefreshing] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -39,12 +39,14 @@ export default function ProfileScreen() {
     setRefreshing(false);
   };
 
+  // Load accomplishments when screen comes into focus
   useFocusEffect(
     useCallback(() => {
       loadAccomplishments();
     }, [])
   );
 
+  // Initial load
   useEffect(() => {
     loadAccomplishments();
   }, []);
@@ -69,24 +71,27 @@ export default function ProfileScreen() {
         }
       >
         <View style={styles.header}>
-          <Text style={styles.headerEmoji}>🏆</Text>
           <Text style={styles.title}>My Wins</Text>
           {isPro && accomplishmentsByDate.length > 0 && (
-            <View style={styles.statsContainer}>
-              <View style={styles.statBadge}>
-                <Text style={styles.statNumber}>{totalCountValue}</Text>
-                <Text style={styles.statLabel}>total wins</Text>
-              </View>
-            </View>
+            <Text style={styles.subtitle}>
+              {totalCountValue} total wins 🎉
+            </Text>
           )}
         </View>
 
         {!isPro ? (
           <View style={styles.proPrompt}>
-            <Text style={styles.proEmoji}>⭐</Text>
-            <Text style={styles.proTitle}>Unlock Your Win History</Text>
+            <View style={styles.proIcon}>
+              <IconSymbol
+                ios_icon_name="star.fill"
+                android_material_icon_name="star"
+                size={48}
+                color={colors.secondary}
+              />
+            </View>
+            <Text style={styles.proTitle}>Upgrade to Pro</Text>
             <Text style={styles.proDescription}>
-              Track what you did with dates and notes. Never forget your amazing achievements! 🌟
+              Track what you did with dates and notes. Never forget your wins!
             </Text>
             <TouchableOpacity 
               style={styles.upgradeButton}
@@ -103,25 +108,27 @@ export default function ProfileScreen() {
           <View style={styles.accomplishmentsContainer}>
             {loading ? (
               <View style={styles.emptyState}>
-                <Text style={styles.loadingEmoji}>⏳</Text>
-                <Text style={styles.emptyStateText}>Loading your wins...</Text>
+                <Text style={styles.emptyStateText}>Loading...</Text>
               </View>
             ) : accomplishmentsByDate.length === 0 ? (
               <View style={styles.emptyState}>
-                <Text style={styles.emptyEmoji}>🎯</Text>
+                <IconSymbol
+                  ios_icon_name="checkmark.circle"
+                  android_material_icon_name="check_circle"
+                  size={64}
+                  color={colors.highlight}
+                />
                 <Text style={styles.emptyStateText}>
-                  No wins yet!
+                  No wins yet
                 </Text>
                 <Text style={styles.emptyStateSubtext}>
-                  Go to the home screen and press &quot;I did it!&quot; to record your first amazing win! 🌈
+                  Go to the home screen and press &quot;I did it!&quot; to record your first win!
                 </Text>
               </View>
             ) : (
               <View style={styles.list}>
                 {accomplishmentsByDate.map((dateGroup, dateIndex) => {
                   const formattedDate = formatDate(dateGroup.date);
-                  const accomplishmentCount = dateGroup.accomplishments.length;
-                  
                   return (
                     <React.Fragment key={dateIndex}>
                       <View style={styles.dateHeader}>
@@ -130,7 +137,7 @@ export default function ProfileScreen() {
                         </Text>
                         <View style={styles.dateBadge}>
                           <Text style={styles.dateBadgeText}>
-                            {accomplishmentCount}
+                            {dateGroup.accomplishments.length}
                           </Text>
                         </View>
                       </View>
@@ -140,18 +147,15 @@ export default function ProfileScreen() {
                           minute: '2-digit',
                           hour12: true,
                         });
-                        
                         return (
                           <View key={itemIndex} style={styles.accomplishmentCard}>
                             <View style={styles.accomplishmentContent}>
-                              <View style={styles.iconContainer}>
-                                <IconSymbol
-                                  ios_icon_name="star.fill"
-                                  android_material_icon_name="star"
-                                  size={28}
-                                  color={colors.secondary}
-                                />
-                              </View>
+                              <IconSymbol
+                                ios_icon_name="star.fill"
+                                android_material_icon_name="star"
+                                size={24}
+                                color={colors.primary}
+                              />
                               <View style={styles.accomplishmentTextContainer}>
                                 <Text style={styles.accomplishmentText}>
                                   {item.text}
@@ -191,86 +195,53 @@ const styles = StyleSheet.create({
   },
   header: {
     marginBottom: 32,
-    alignItems: 'center',
-  },
-  headerEmoji: {
-    fontSize: 48,
-    marginBottom: 8,
   },
   title: {
-    fontSize: 36,
-    fontWeight: '900',
+    fontSize: 32,
+    fontWeight: '800',
     color: colors.text,
-    marginBottom: 16,
-    letterSpacing: -0.5,
+    marginBottom: 8,
   },
-  statsContainer: {
-    flexDirection: 'row',
-    gap: 12,
-  },
-  statBadge: {
-    backgroundColor: colors.card,
-    paddingVertical: 12,
-    paddingHorizontal: 24,
-    borderRadius: 20,
-    alignItems: 'center',
-    boxShadow: `0px 4px 16px ${colors.cardShadow}`,
-    elevation: 4,
-    borderWidth: 2,
-    borderColor: colors.accent,
-  },
-  statNumber: {
-    fontSize: 24,
-    fontWeight: '900',
-    color: colors.accent,
-  },
-  statLabel: {
-    fontSize: 12,
-    fontWeight: '600',
+  subtitle: {
+    fontSize: 16,
     color: colors.textSecondary,
-    marginTop: 2,
   },
   proPrompt: {
     backgroundColor: colors.card,
-    borderRadius: 24,
-    padding: 40,
+    borderRadius: 20,
+    padding: 32,
     alignItems: 'center',
-    boxShadow: `0px 8px 24px ${colors.cardShadow}`,
-    elevation: 6,
-    borderWidth: 2,
-    borderColor: colors.border,
+    boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.08)',
+    elevation: 3,
   },
-  proEmoji: {
-    fontSize: 72,
+  proIcon: {
     marginBottom: 16,
   },
   proTitle: {
-    fontSize: 26,
-    fontWeight: '900',
+    fontSize: 24,
+    fontWeight: '700',
     color: colors.text,
     marginBottom: 12,
-    textAlign: 'center',
   },
   proDescription: {
     fontSize: 16,
     color: colors.textSecondary,
     textAlign: 'center',
-    marginBottom: 28,
+    marginBottom: 24,
     lineHeight: 24,
-    fontWeight: '500',
   },
   upgradeButton: {
-    backgroundColor: colors.upgradeAccent,
-    paddingVertical: 18,
-    paddingHorizontal: 40,
-    borderRadius: 30,
-    boxShadow: '0px 6px 20px rgba(156, 39, 176, 0.3)',
-    elevation: 8,
+    backgroundColor: colors.secondary,
+    paddingVertical: 16,
+    paddingHorizontal: 32,
+    borderRadius: 24,
+    boxShadow: '0px 4px 12px rgba(255, 193, 7, 0.2)',
+    elevation: 4,
   },
   upgradeButtonText: {
-    fontSize: 18,
-    fontWeight: '800',
-    color: colors.card,
+    fontSize: 16,
+    fontWeight: '600',
+    color: colors.text,
   },
   accomplishmentsContainer: {
     flex: 1,
@@ -278,29 +249,20 @@ const styles = StyleSheet.create({
   emptyState: {
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 80,
-  },
-  emptyEmoji: {
-    fontSize: 80,
-    marginBottom: 16,
-  },
-  loadingEmoji: {
-    fontSize: 64,
-    marginBottom: 16,
+    paddingVertical: 60,
   },
   emptyStateText: {
-    fontSize: 22,
-    fontWeight: '800',
+    fontSize: 18,
+    fontWeight: '600',
     color: colors.text,
-    marginBottom: 12,
+    marginTop: 16,
+    marginBottom: 8,
   },
   emptyStateSubtext: {
-    fontSize: 16,
+    fontSize: 14,
     color: colors.textSecondary,
     textAlign: 'center',
     paddingHorizontal: 20,
-    lineHeight: 24,
-    fontWeight: '500',
   },
   list: {
     gap: 12,
@@ -309,64 +271,51 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginTop: 20,
-    marginBottom: 16,
+    marginTop: 16,
+    marginBottom: 12,
     paddingHorizontal: 4,
   },
   dateText: {
-    fontSize: 20,
-    fontWeight: '800',
+    fontSize: 18,
+    fontWeight: '700',
     color: colors.text,
   },
   dateBadge: {
-    backgroundColor: colors.accentBlue,
-    paddingHorizontal: 16,
-    paddingVertical: 6,
-    borderRadius: 16,
-    boxShadow: '0px 2px 8px rgba(78, 205, 196, 0.3)',
-    elevation: 3,
+    backgroundColor: colors.primary,
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    borderRadius: 12,
   },
   dateBadgeText: {
-    fontSize: 16,
-    fontWeight: '800',
-    color: colors.card,
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#FFFFFF',
   },
   accomplishmentCard: {
     backgroundColor: colors.card,
-    borderRadius: 20,
-    padding: 20,
-    marginBottom: 12,
-    boxShadow: `0px 4px 16px ${colors.cardShadow}`,
-    elevation: 4,
-    borderWidth: 2,
-    borderColor: colors.border,
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 8,
+    boxShadow: '0px 2px 8px rgba(0, 0, 0, 0.06)',
+    elevation: 2,
   },
   accomplishmentContent: {
     flexDirection: 'row',
     alignItems: 'flex-start',
-    gap: 16,
-  },
-  iconContainer: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: colors.highlight,
-    alignItems: 'center',
-    justifyContent: 'center',
+    gap: 12,
   },
   accomplishmentTextContainer: {
     flex: 1,
   },
   accomplishmentText: {
-    fontSize: 17,
-    fontWeight: '600',
+    fontSize: 16,
+    fontWeight: '500',
     color: colors.text,
-    marginBottom: 6,
-    lineHeight: 24,
+    marginBottom: 4,
+    lineHeight: 22,
   },
   accomplishmentTime: {
-    fontSize: 13,
+    fontSize: 12,
     color: colors.textSecondary,
-    fontWeight: '600',
   },
 });

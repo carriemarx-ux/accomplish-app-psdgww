@@ -9,19 +9,26 @@ import { saveAccomplishment } from "@/utils/storageService";
 export default function HomeScreen() {
   const confettiRef = useRef<any>(null);
   const [celebrationCount, setCelebrationCount] = useState(0);
-  const [isPro, setIsPro] = useState(true);
+  const [isPro, setIsPro] = useState(true); // Set to true to show pro version
   const [accomplishment, setAccomplishment] = useState("");
 
   const triggerGentleHaptic = () => {
     console.log("Triggering crescendo haptic feedback mirroring confetti");
     
     if (Platform.OS === 'ios') {
+      // iOS: Crescendo to peak, then smooth de-crescendo
+      // Timeline mirrors confetti: build up to peak (~400ms), then fall (~1600ms)
       const hapticSequence = async () => {
+        // Crescendo phase (0-400ms) - building intensity
         await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
         setTimeout(() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light), 100);
         setTimeout(() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium), 200);
         setTimeout(() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium), 300);
+        
+        // Peak (400ms) - maximum intensity
         setTimeout(() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy), 400);
+        
+        // De-crescendo phase (500-2000ms) - smooth fall with confetti
         setTimeout(() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium), 600);
         setTimeout(() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium), 800);
         setTimeout(() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light), 1000);
@@ -33,9 +40,45 @@ export default function HomeScreen() {
       };
       hapticSequence();
     } else if (Platform.OS === 'android') {
+      // Android: Smooth continuous vibration pattern mirroring confetti
+      // Pattern: [delay, vibrate, delay, vibrate, ...]
+      // Crescendo to peak, then smooth de-crescendo
       const pattern = [
-        0, 30, 40, 40, 40, 50, 40, 60, 40, 80, 50,
-        70, 50, 60, 50, 50, 50, 45, 50, 40, 50, 35, 50, 30, 50, 25, 50, 20, 50, 15, 50, 10,
+        0,    // Start immediately
+        // Crescendo phase (0-400ms) - building up
+        30,   // Light start
+        40,
+        40,   // Building
+        40,
+        50,   // Medium
+        40,
+        60,   // Medium-strong
+        40,
+        // Peak (400ms) - maximum intensity
+        80,   // Peak vibration
+        50,
+        // De-crescendo phase (500-2000ms) - smooth fall
+        70,   // Strong but falling
+        50,
+        60,   // Medium-strong
+        50,
+        50,   // Medium
+        50,
+        45,   // Medium-light
+        50,
+        40,   // Light
+        50,
+        35,   // Lighter
+        50,
+        30,   // Very light
+        50,
+        25,   // Very light
+        50,
+        20,   // Barely noticeable
+        50,
+        15,   // Fading
+        50,
+        10,   // Final fade
       ];
       Vibration.vibrate(pattern);
     }
@@ -44,25 +87,30 @@ export default function HomeScreen() {
   const handlePress = async () => {
     console.log("I did it button pressed!");
     
+    // Dismiss keyboard immediately when button is pressed
     Keyboard.dismiss();
     console.log("Keyboard dismissed");
     
+    // Trigger crescendo haptic feedback that mirrors confetti
     triggerGentleHaptic();
 
+    // Trigger confetti
     if (confettiRef.current) {
       confettiRef.current.start();
     }
 
+    // Increment celebration count
     setCelebrationCount(prev => prev + 1);
 
+    // Save accomplishment if pro user and text is provided
     if (isPro && accomplishment.trim()) {
       try {
         await saveAccomplishment(accomplishment);
-        console.log("Accomplishment saved:", accomplishment);
-        setAccomplishment("");
+        setAccomplishment(""); // Clear the input after saving
       } catch (error) {
         console.error("Error saving accomplishment:", error);
         
+        // Handle storage full error
         if (error instanceof Error && error.message === 'STORAGE_FULL') {
           Alert.alert(
             'Storage Full',
@@ -91,66 +139,60 @@ export default function HomeScreen() {
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
+        {/* Header Section - Full Width */}
         <View style={styles.headerSection}>
-          <Text style={styles.emoji}>🎉✨🌟</Text>
           <Text style={styles.title}>Celebrate Your Wins!</Text>
-          <Text style={styles.subtitle}>Every win deserves a celebration</Text>
-          
           <View style={styles.counterRow}>
             <View style={styles.counterContainer}>
-              <Text style={styles.counterEmoji}>🎊</Text>
-              <Text style={styles.counterNumber}>{celebrationCount}</Text>
-              <Text style={styles.counterLabel}>celebrations</Text>
+              <Text style={styles.counterText}>🎉 {celebrationCount}</Text>
             </View>
           </View>
         </View>
 
-        <View style={styles.inputContainer}>
-          <TextInput
-            style={styles.textInput}
-            placeholder="What did you do? ✨"
-            placeholderTextColor={colors.textLight}
-            value={accomplishment}
-            onChangeText={setAccomplishment}
-            multiline
-            numberOfLines={3}
-            textAlignVertical="top"
-          />
-        </View>
-
+        {/* Main Content */}
         <View style={styles.content}>
-          <View style={styles.buttonGlow}>
-            <TouchableOpacity 
-              style={styles.button}
-              onPress={handlePress}
-              activeOpacity={0.85}
-            >
-              <Text style={styles.buttonEmoji}>🎯</Text>
-              <Text style={styles.buttonText}>I did it!</Text>
-            </TouchableOpacity>
-          </View>
+          <TouchableOpacity 
+            style={styles.button}
+            onPress={handlePress}
+            activeOpacity={0.8}
+          >
+            <Text style={styles.buttonText}>I did it!</Text>
+          </TouchableOpacity>
 
-          <Text style={styles.description}>
-            Tap the button every time you achieve something amazing! 🌈
+          {/* Pro Feature: Text Input */}
+          {isPro && (
+            <View style={styles.inputContainer}>
+              <TextInput
+                style={styles.textInput}
+                placeholder="What did you do?"
+                placeholderTextColor="#999999"
+                value={accomplishment}
+                onChangeText={setAccomplishment}
+                multiline
+                numberOfLines={3}
+                textAlignVertical="top"
+              />
+            </View>
+          )}
+
+          <Text style={styles.subtitle}>
+            Press the button every time you do something!
           </Text>
         </View>
 
+        {/* Upgrade Section - Only show if not pro */}
         {!isPro && (
           <View style={styles.upgradeContainer}>
-            <Text style={styles.upgradeEmoji}>⭐</Text>
-            <Text style={styles.upgradeTitle}>
-              Save Your Wins!
-            </Text>
             <Text style={styles.upgradeText}>
-              Keep a permanent record with dates and notes
+              Want to track what you did?
             </Text>
             <TouchableOpacity 
               style={styles.upgradeButton}
               onPress={() => {
                 console.log("Upgrade pressed - Superwall integration coming");
-                setIsPro(true);
+                setIsPro(true); // Simulate upgrade for now
               }}
-              activeOpacity={0.8}
+              activeOpacity={0.7}
             >
               <Text style={styles.upgradeButtonText}>Upgrade to Pro ✨</Text>
             </TouchableOpacity>
@@ -160,12 +202,12 @@ export default function HomeScreen() {
 
       <ConfettiCannon
         ref={confettiRef}
-        count={200}
+        count={150}
         origin={{ x: -10, y: 0 }}
         autoStart={false}
         fadeOut={true}
         fallSpeed={2500}
-        colors={colors.confetti}
+        colors={[colors.primary, colors.secondary, colors.accent, '#FF6B6B', '#4ECDC4']}
       />
     </KeyboardAvoidingView>
   );
@@ -184,77 +226,32 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     width: '100%',
     marginBottom: 20,
-    alignItems: 'center',
-  },
-  emoji: {
-    fontSize: 40,
-    marginBottom: 8,
   },
   title: {
-    fontSize: 36,
-    fontWeight: '900',
+    fontSize: 32,
+    fontWeight: '800',
     color: colors.text,
+    width: '100%',
+    marginBottom: 12,
     textAlign: 'center',
-    marginBottom: 8,
-    letterSpacing: -0.5,
-  },
-  subtitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: colors.textSecondary,
-    textAlign: 'center',
-    marginBottom: 20,
   },
   counterRow: {
     width: '100%',
     flexDirection: 'row',
-    justifyContent: 'center',
-    marginTop: 8,
+    justifyContent: 'flex-end',
   },
   counterContainer: {
     backgroundColor: colors.card,
-    paddingVertical: 16,
-    paddingHorizontal: 28,
-    borderRadius: 30,
-    boxShadow: `0px 4px 20px ${colors.cardShadow}`,
-    elevation: 6,
-    borderWidth: 2,
-    borderColor: colors.primary,
-    alignItems: 'center',
-    flexDirection: 'row',
-    gap: 8,
-  },
-  counterEmoji: {
-    fontSize: 24,
-  },
-  counterNumber: {
-    fontSize: 28,
-    fontWeight: '900',
-    color: colors.primary,
-  },
-  counterLabel: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: colors.textSecondary,
-  },
-  inputContainer: {
-    width: '100%',
-    paddingHorizontal: 20,
-    marginBottom: 30,
-  },
-  textInput: {
-    backgroundColor: colors.card,
+    paddingVertical: 8,
+    paddingHorizontal: 16,
     borderRadius: 20,
-    padding: 20,
-    fontSize: 16,
+    boxShadow: '0px 2px 8px rgba(0, 0, 0, 0.1)',
+    elevation: 2,
+  },
+  counterText: {
+    fontSize: 18,
+    fontWeight: '700',
     color: colors.text,
-    minHeight: 100,
-    maxHeight: 140,
-    borderWidth: 3,
-    borderColor: colors.border,
-    boxShadow: `0px 4px 16px ${colors.cardShadow}`,
-    elevation: 4,
-    fontWeight: '500',
   },
   content: {
     flex: 1,
@@ -262,88 +259,82 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingHorizontal: 20,
     paddingBottom: 40,
-    minHeight: 300,
-  },
-  buttonGlow: {
-    padding: 8,
-    borderRadius: 120,
-    backgroundColor: colors.primaryLight,
-    opacity: 0.3,
   },
   button: {
-    width: 220,
-    height: 220,
-    borderRadius: 110,
-    backgroundColor: colors.primary,
+    width: 200,
+    height: 200,
+    borderRadius: 100,
+    backgroundColor: colors.gold,
     alignItems: 'center',
     justifyContent: 'center',
-    boxShadow: `0px 16px 50px ${colors.cardShadow}`,
-    elevation: 16,
-    borderWidth: 6,
-    borderColor: colors.card,
-  },
-  buttonEmoji: {
-    fontSize: 48,
-    marginBottom: 8,
+    boxShadow: '0px 12px 40px rgba(255, 215, 0, 0.5)',
+    elevation: 12,
+    borderWidth: 4,
+    borderColor: colors.goldLight,
   },
   buttonText: {
     fontSize: 32,
-    fontWeight: '900',
-    color: colors.card,
+    fontWeight: '800',
+    color: '#FFFFFF',
     textAlign: 'center',
-    textShadowColor: 'rgba(0, 0, 0, 0.2)',
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
     textShadowOffset: { width: 0, height: 2 },
     textShadowRadius: 4,
-    letterSpacing: -0.5,
   },
-  description: {
+  inputContainer: {
+    width: '100%',
+    marginTop: 24,
+    paddingHorizontal: 20,
+  },
+  textInput: {
+    backgroundColor: colors.card,
+    borderRadius: 16,
+    padding: 16,
+    fontSize: 16,
+    color: colors.text,
+    minHeight: 80,
+    maxHeight: 120,
+    borderWidth: 2,
+    borderColor: colors.highlight,
+    boxShadow: '0px 2px 8px rgba(0, 0, 0, 0.08)',
+    elevation: 2,
+  },
+  subtitle: {
     fontSize: 16,
     color: colors.textSecondary,
     textAlign: 'center',
-    marginTop: 30,
+    marginTop: 32,
     paddingHorizontal: 20,
-    fontWeight: '600',
   },
   upgradeContainer: {
-    backgroundColor: colors.upgradeBackground,
-    paddingVertical: 32,
-    paddingHorizontal: 24,
+    backgroundColor: colors.lightBlue,
+    paddingVertical: 20,
+    paddingHorizontal: 20,
     paddingBottom: 120,
     alignItems: 'center',
-    borderTopLeftRadius: 32,
-    borderTopRightRadius: 32,
-    boxShadow: '0px -6px 30px rgba(156, 39, 176, 0.15)',
-    elevation: 10,
-  },
-  upgradeEmoji: {
-    fontSize: 56,
-    marginBottom: 12,
-  },
-  upgradeTitle: {
-    fontSize: 24,
-    fontWeight: '900',
-    color: colors.text,
-    textAlign: 'center',
-    marginBottom: 8,
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    boxShadow: '0px -4px 20px rgba(0, 0, 0, 0.1)',
+    elevation: 8,
   },
   upgradeText: {
-    fontSize: 16,
-    color: colors.textSecondary,
+    fontSize: 15,
+    color: colors.text,
     textAlign: 'center',
-    marginBottom: 20,
+    marginBottom: 12,
     fontWeight: '500',
   },
   upgradeButton: {
-    backgroundColor: colors.upgradeAccent,
-    paddingVertical: 18,
-    paddingHorizontal: 40,
-    borderRadius: 30,
-    boxShadow: '0px 6px 20px rgba(156, 39, 176, 0.3)',
-    elevation: 8,
+    backgroundColor: '#FFFFFF',
+    paddingVertical: 14,
+    paddingHorizontal: 32,
+    borderRadius: 24,
+    boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.15)',
+    elevation: 4,
   },
   upgradeButtonText: {
-    fontSize: 18,
-    fontWeight: '800',
-    color: colors.card,
+    fontSize: 17,
+    fontWeight: '700',
+    color: colors.text,
   },
 });
