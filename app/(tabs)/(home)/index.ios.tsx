@@ -13,17 +13,29 @@ export default function HomeScreen() {
   const [accomplishment, setAccomplishment] = useState("");
 
   const triggerGentleHaptic = () => {
-    console.log("Triggering gentle fading haptic feedback");
+    console.log("Triggering crescendo haptic feedback mirroring confetti");
     
-    // iOS: Use a sequence of haptic impacts with decreasing intensity
+    // iOS: Crescendo to peak, then smooth de-crescendo
+    // Timeline mirrors confetti: build up to peak (~400ms), then fall (~1600ms)
     const hapticSequence = async () => {
-      await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
-      setTimeout(() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium), 150);
-      setTimeout(() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light), 300);
-      setTimeout(() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light), 450);
-      setTimeout(() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light), 600);
-      setTimeout(() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light), 750);
-      setTimeout(() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light), 900);
+      // Crescendo phase (0-400ms) - building intensity
+      await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      setTimeout(() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light), 100);
+      setTimeout(() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium), 200);
+      setTimeout(() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium), 300);
+      
+      // Peak (400ms) - maximum intensity
+      setTimeout(() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy), 400);
+      
+      // De-crescendo phase (500-2000ms) - smooth fall with confetti
+      setTimeout(() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium), 600);
+      setTimeout(() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium), 800);
+      setTimeout(() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light), 1000);
+      setTimeout(() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light), 1200);
+      setTimeout(() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light), 1400);
+      setTimeout(() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light), 1600);
+      setTimeout(() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light), 1800);
+      setTimeout(() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light), 2000);
     };
     hapticSequence();
   };
@@ -35,7 +47,7 @@ export default function HomeScreen() {
     Keyboard.dismiss();
     console.log("Keyboard dismissed");
     
-    // Trigger gentle fading haptic feedback
+    // Trigger crescendo haptic feedback that mirrors confetti
     triggerGentleHaptic();
 
     // Trigger confetti

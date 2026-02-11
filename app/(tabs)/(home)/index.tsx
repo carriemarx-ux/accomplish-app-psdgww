@@ -13,41 +13,72 @@ export default function HomeScreen() {
   const [accomplishment, setAccomplishment] = useState("");
 
   const triggerGentleHaptic = () => {
-    console.log("Triggering gentle fading haptic feedback");
+    console.log("Triggering crescendo haptic feedback mirroring confetti");
     
     if (Platform.OS === 'ios') {
-      // iOS: Use a sequence of haptic impacts with decreasing intensity
+      // iOS: Crescendo to peak, then smooth de-crescendo
+      // Timeline mirrors confetti: build up to peak (~400ms), then fall (~1600ms)
       const hapticSequence = async () => {
-        await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
-        setTimeout(() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium), 150);
-        setTimeout(() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light), 300);
-        setTimeout(() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light), 450);
-        setTimeout(() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light), 600);
-        setTimeout(() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light), 750);
-        setTimeout(() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light), 900);
+        // Crescendo phase (0-400ms) - building intensity
+        await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+        setTimeout(() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light), 100);
+        setTimeout(() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium), 200);
+        setTimeout(() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium), 300);
+        
+        // Peak (400ms) - maximum intensity
+        setTimeout(() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy), 400);
+        
+        // De-crescendo phase (500-2000ms) - smooth fall with confetti
+        setTimeout(() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium), 600);
+        setTimeout(() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium), 800);
+        setTimeout(() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light), 1000);
+        setTimeout(() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light), 1200);
+        setTimeout(() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light), 1400);
+        setTimeout(() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light), 1600);
+        setTimeout(() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light), 1800);
+        setTimeout(() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light), 2000);
       };
       hapticSequence();
     } else if (Platform.OS === 'android') {
-      // Android: Use Vibration API with a custom pattern that fades
+      // Android: Smooth continuous vibration pattern mirroring confetti
       // Pattern: [delay, vibrate, delay, vibrate, ...]
-      // Vibration intensity decreases by using shorter vibration durations
+      // Crescendo to peak, then smooth de-crescendo
       const pattern = [
         0,    // Start immediately
-        100,  // Strong vibration (100ms)
-        50,   // Short pause
-        80,   // Medium-strong vibration
-        50,   // Short pause
-        60,   // Medium vibration
-        50,   // Short pause
-        40,   // Light vibration
-        50,   // Short pause
-        30,   // Lighter vibration
-        50,   // Short pause
-        20,   // Very light vibration
-        50,   // Short pause
-        15,   // Very light vibration
-        50,   // Short pause
-        10,   // Barely noticeable
+        // Crescendo phase (0-400ms) - building up
+        30,   // Light start
+        40,
+        40,   // Building
+        40,
+        50,   // Medium
+        40,
+        60,   // Medium-strong
+        40,
+        // Peak (400ms) - maximum intensity
+        80,   // Peak vibration
+        50,
+        // De-crescendo phase (500-2000ms) - smooth fall
+        70,   // Strong but falling
+        50,
+        60,   // Medium-strong
+        50,
+        50,   // Medium
+        50,
+        45,   // Medium-light
+        50,
+        40,   // Light
+        50,
+        35,   // Lighter
+        50,
+        30,   // Very light
+        50,
+        25,   // Very light
+        50,
+        20,   // Barely noticeable
+        50,
+        15,   // Fading
+        50,
+        10,   // Final fade
       ];
       Vibration.vibrate(pattern);
     }
@@ -60,7 +91,7 @@ export default function HomeScreen() {
     Keyboard.dismiss();
     console.log("Keyboard dismissed");
     
-    // Trigger gentle fading haptic feedback
+    // Trigger crescendo haptic feedback that mirrors confetti
     triggerGentleHaptic();
 
     // Trigger confetti
