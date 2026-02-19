@@ -4,7 +4,7 @@
     "slug": "Accomplish",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/natively-dark.png",
+    "icon": "./assets/images/accomplish-icon.png",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "splash": {
@@ -21,7 +21,7 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/natively-dark.png",
+        "foregroundImage": "./assets/images/accomplish-icon.png",
         "backgroundColor": "#000000"
       },
       "edgeToEdgeEnabled": true,
