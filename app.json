@@ -8,7 +8,7 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "splash": {
-      "image": "./assets/images/natively-dark.png",
+      "image": "./assets/images/accomplish-icon.png",
       "resizeMode": "contain",
       "backgroundColor": "#000000"
     },
